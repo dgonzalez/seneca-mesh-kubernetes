@@ -1,0 +1,26 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "seneca-multi",
+    "labels": {
+      "name": "seneca-multi"
+    },
+    "generateName": "seneca-multi",
+    "namespace": "default"
+  },
+  "spec": {
+
+    "containers": [
+    {
+      "name": "seneca-mesh-base",
+      "image": "711655675495.dkr.ecr.eu-central-1.amazonaws.com/seneca-mesh-base"
+    },
+    {
+      "name": "seneca-mesh-act",
+      "image": "711655675495.dkr.ecr.eu-central-1.amazonaws.com/seneca-mesh-act"
+    }
+    ]
+
+  }
+}

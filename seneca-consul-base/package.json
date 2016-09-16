@@ -1,0 +1,19 @@
+{
+  "name": "seneca-kubernetes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "act.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hapi": "^15.0.3",
+    "seneca": "^3.0.0",
+    "seneca-consul-registry": "^0.1.0"
+  },
+  "devDependencies": {
+    "seneca-mesh": "^0.9.0"
+  }
+}
