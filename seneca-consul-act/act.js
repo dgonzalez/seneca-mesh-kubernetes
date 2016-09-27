@@ -1,25 +1,48 @@
 'use strict'
 
+const kubernetes = require('seneca-kubernetes')
 const Seneca = require('seneca')
-
 const seneca = Seneca()
 
-// .use('consul-registry', {
-//   host: 'srv-consul'
-// })
+seneca.use(kubernetes)
 
-.use('mesh', {
-  pin: 'cmd:test',
-  bases: ['10.244.0.6']
-})
+function runningPods (pod) {
+  return pod.status === 'Running'
+}
 
+function bases (pod) {
+  return pod.labels.app === 'seneca-base'
+}
+
+function pickIp (pod) {
+  return pod.ip
+}
+
+function addPort (ip) {
+  return ip + ":39000"
+}
 
 seneca.ready(function () {
+
+  const kubernetes = seneca.options().plugin.kubernetes
+
+  seneca.use('mesh', {
+    bases: kubernetes.pods
+      .filter(bases)
+      .filter(runningPods)
+      .map(pickIp)
+      .map(addPort),
+    host: kubernetes.myip,
+    port: 39000
+  })
 
   const Hapi = require('hapi')
 
   const server = new Hapi.Server()
-  server.connection({port: 3000})
+  server.connection({
+    host: kubernetes.myip,
+    port: 3000
+  })
 
   server.start((err) => {
     if(err) {

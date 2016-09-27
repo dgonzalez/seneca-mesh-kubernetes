@@ -1,22 +1,45 @@
 'use strict'
 
-let Seneca = require('seneca')
+const Seneca = require('seneca')
 
-let seneca = Seneca()
+const seneca = Seneca()
 
 .add({cmd: 'test', action: 'hello'}, function (msg, done) {
   done(null, {answer: 'aloha!'})
 })
 
-// .use('consul-registry', {
-//     host: 'srv-consul'
-// })
+.use('kubernetes')
 
-.use('mesh', {
-  base: true,
-  pin: 'cmd:test'
-})
+function runningPods (pod) {
+  return pod.status === 'Running'
+}
 
-.ready(function () {
+function bases (pod) {
+  return pod.labels.app === 'seneca-base'
+}
+
+function pickIp (pod) {
+  return pod.ip
+}
+
+function addPort (ip) {
+  return ip + ":39000"
+}
+
+seneca.ready(function () {
+  const kubernetes = seneca.options().plugin.kubernetes
+
+  seneca.use('mesh', {
+    port: 39000,
+    base: true,
+    pin: 'cmd:test',
+    host: kubernetes.myip,
+    bases: kubernetes.pods
+      .filter(bases)
+      .filter(runningPods)
+      .map(pickIp)
+      .map(addPort)
+  })
+
   console.log('Seneca up and running')
 })
